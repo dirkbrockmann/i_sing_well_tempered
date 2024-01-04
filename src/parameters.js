@@ -7,27 +7,19 @@
 
 export default {
 		dt:1,
-		L:100,
-		agentsize: 1.0,
+		N:100,
+		local_radius:0.0,
 	
-		speed: {
-			range:[0,1],
-			default:0.2
+		temperature: {
+			range:[0,5],
+			default:0
 		},
-		wiggle: {
-			range:[0,180],
-			default:50
+		magnetic_field: {
+			range:[-0.1,0.1],
+			default:0
 		},
-		interaction_radius:{
-			range : [0,5],
-			default : 3
-		},
-		number_of_particles : {
-			choices:[50,100,200,400],
-		default:2
-		},
-		color_by_heading: {
-			default: true
+		local_average: {
+			default:false
 		}
 }
 

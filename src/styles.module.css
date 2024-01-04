@@ -1,3 +1,41 @@
 .node {
 	
 }
+
+.plot {
+	
+}
+
+.plot > .axislabel {
+	text-anchor:end;
+	font-size:12px;
+}
+
+.plot > .yaxislabel {
+	text-anchor:middle;
+	font-size:12px;
+}
+
+.plot > .curve {
+	stroke-width:3px;
+	fill:none;	
+}
+
+.magnetization{
+	stroke:darkblue;
+}
+
+.energy{
+	stroke:darkred;
+}
+
+.yaxis{
+	
+}
+
+.xaxis{
+	
+}
+
+
+

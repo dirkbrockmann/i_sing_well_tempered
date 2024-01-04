@@ -1,5 +1,5 @@
 export default {
-  "title": "Explorable Title",
-  "subtitle":"Explorable Subtitle",
-  "description": "This is a template for making a complexity explorable. The template can be used to create a new complexity explorable. This template implements the Vicsek Model."
+  "title": "I sing well-tempered",
+  "subtitle":"The Ising Model",
+  "description": "This explorable illustrates the dynamics and properties of the famous Ising Model of statistical mechanics. It's a lattice of spins / magnets arranged on a lattice. Each spin interacts with its neighbors and tried to align its direction with the neighborhood."
 }

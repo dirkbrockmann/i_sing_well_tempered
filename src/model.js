@@ -1,88 +1,95 @@
-// this is a module that contains most of the explorable specific code
-// the "math" of the explorable, the model itself, without the elements
-// of visualization which are done in viz.js
-
 import param from "./parameters.js"
-import {each,range,map,mean} from "lodash-es"
-import {rad2deg,deg2rad} from "./utils"
+import {shuffle,each,range,map,mean,sumBy,unionBy} from "lodash-es"
+import {torusdist,grid,l2d,d2l} from "./utils"
+import {square} from "lattices"
+import cfg from "./config.js"
 
-const L = param.L;
-const dt = param.dt;
+var E = [];
+var M = [];
+const N = param.N;
+const s = square(N).scale(2*N);
+var agents = s.nodes;
 
-// typically objects needed for the explorable
-// are defined here
+const others_inradius = (a,others,R) => others.filter(b=> (torusdist(a,b,2*N) < R) )
 
-var agents = [];
+const magnetization = (agents) => {
+	return sumBy(agents,a=>a.state)/agents.length;
+}
 
-// the initialization function, this is bundled in simulation.js with the initialization of
-// the visualization and effectively executed in index.js when the whole explorable is loaded
+const energy = (agents) => {
+	return sumBy(agents,a=>-a.state*sumBy(a.neighbors,n=>n.state)/a.neighbors.length)/agents.length
+}
+
+
+const hood = function(k,n,bc="periodic"){
+	
+	const local_average_hood = grid(21,21);
+	const neigh=[];
+	each(local_average_hood,z => {
+
+		var j = z[1]
+		var i = z[0]
+		
+		const p = l2d(k,n),
+			x = p[0], y = p[1],
+			a = x + i, b = y + j;
+		if (bc == "dirichlet" ? 
+			!(j == 0 && i==0) && a<n && b < n && a>=0 && b>=0 : 
+			!(j == 0 && i==0)) {
+				neigh.push(n*((b+n)%n)+(a+n)%n);
+			}
+	})
+	
+	return neigh;
+}
+
+each(agents,(d,i)=>{
+	let h = hood(i,2*N+1,"periodic").map(x => agents[x]);
+	d.hood = others_inradius(d,h,4) 
+})
+
 
 const initialize = () => {
 
-	// set/reset timer
 	param.timer={}; param.tick=0;
 
-	// make agents
+	each(agents,a=>{
+		Math.random() < 0.5?a.state=-1:a.state=1
+	})
+		
+		
+	M = [{t:param.tick,x:magnetization(agents)}];	
+	E = [{t:param.tick,x:energy(agents)}];
 
-	const N = param.number_of_particles.choices[param.number_of_particles.widget.value()];
-	
-	agents = map(range(N), i => { return {
-				index:i, 
-				x:L*Math.random(), 
-				y:L*Math.random(),
-				theta: 2*Math.PI*Math.random(),
-			} 
-	});
-	
 };
-
-// the go function, this is bundled in simulation.js with the go function of
-// the visualization, typically this is the iteration function of the model that
-// is run in the explorable.
 
 const go  = () => {
 	
 	param.tick++;
+	agents=shuffle(agents);
 	
 	each(agents,a=>{
-		
-		var dx = dt*param.speed.widget.value()*Math.cos(a.theta);
-		var dy = dt*param.speed.widget.value()*Math.sin(a.theta);
-		
-		const x_new = a.x + dx;
-		const y_new = a.y + dy;
-		
-		if (x_new < 0) {dx+=L};
-		if (y_new < 0) {dy+=L};
-		if (x_new > L) {dx-=L};
-		if (y_new > L) {dy-=L};  
-		
-		a.x += dx;
-		a.y += dy;
-		
-		var neighbors = agents.filter(d =>  (d.x-a.x)**2 + (d.y-a.y)**2 <= param.interaction_radius.widget.value()**2 )
-		
-		var mx = mean(map(neighbors,x=> Math.cos(deg2rad(x.theta))));
-		var my = mean(map(neighbors,x=> Math.sin(deg2rad(x.theta))));	
-		
-		a.theta = rad2deg(Math.atan2(my,mx))
-		
-		a.theta += deg2rad(param.wiggle.widget.value())*(Math.random()-0.5)
+		let s = a.state;
+		let k = sumBy(a.neighbors,n=>n.state);
+		let temp = param.temperature.widget.value();
+		let field = param.magnetic_field.widget.value()
+		let dE = s*(k+2*field); 
+		if(dE <= 0 || Math.random() < Math.exp(-dE/temp) ) {
+			a.state = -a.state 		
+		}
 		
 	})
+
+	M.push({t:param.tick,x:magnetization(agents)});	
+	E.push({t:param.tick,x:energy(agents)});
+	
+	if (M.length>cfg.plot.x_range) {
+		M.shift()
+		E.shift()
+	}
 	
 }
 
-// the update function is usually not required for running the explorable. Sometimes
-// it makes sense to have it, e.g. to update the model, if a parameter is changed,
-// e.g. a radio button is pressed. 
+const update = () => {}
 
-const update = () => {
-	
-	each(agents,x => {x.active = x.index < param.number_of_particles.widget.value() ? true : false})
-
-}
-
-// the three functions initialize, go and update are exported, also all variables
-// that are required for the visualization
-export {agents,initialize,go,update}
+export {agents,E,M,initialize,go,update}

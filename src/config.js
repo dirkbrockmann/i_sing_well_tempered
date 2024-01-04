@@ -5,23 +5,32 @@
 
 export default { 
 	widgets:{
-		slider_size: 400,
+		slider_size: 360,
 		slider_show: true,
 		slider_gap : 1.5,
 		slider_anchor: {x:1,y:8},
-		toggle_anchor: {x:7,y:4},
-		toggle_label_pos:"right",
+		slider_girth: 10,
+		slider_knob:14,
 		playbutton_size: 120,
 		playbutton_anchor:{x:3,y:2},
 		backbutton_anchor:{x:4,y:5},
 		resetbutton_anchor:{x:2,y:5},
-		radio_anchor:{x:7,y:2},
-		radio_size:150,
-		radio_orientation:"horizontal",
-		radio_label_position:"top",
-		radio_shape:"rect",
+		fieldbutton_anchor:{x:11,y:9.5},
+		fieldbutton_size:25,
+		toggle_anchor:{x:1.5,y:11},
+		toggle_label_position:"right"
 	},
 	simulation: {
 		delay:0
+	},
+	plot:{
+		energy_anchor:{x:6,y:3},
+		magnetization_anchor:{x:6,y:6},
+		width:200,
+		height:80,
+		energy_ylabel:"energy",
+		magnetization_ylabel:"magnetization",
+		x_label:"time",
+		x_range:1000,
 	}
 }
