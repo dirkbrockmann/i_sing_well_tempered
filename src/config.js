@@ -21,7 +21,7 @@ export default {
 		toggle_label_position:"right"
 	},
 	simulation: {
-		delay:0
+		delay:10
 	},
 	plot:{
 		energy_anchor:{x:6,y:3},
